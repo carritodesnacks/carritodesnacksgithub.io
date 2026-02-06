@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <!-- Optimizado para TODOS los iPhone -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
   <title>¿Quieres ser mi San Valentín? ❤️</title>
 
   <style>
@@ -26,16 +30,16 @@
     }
 
     .card {
-      background: rgba(0,0,0,0.28);
+      background: rgba(0,0,0,0.3);
       padding: 26px;
       border-radius: 24px;
       width: 100%;
       max-width: 360px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      box-shadow: 0 18px 35px rgba(0,0,0,0.25);
     }
 
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       margin-bottom: 15px;
     }
 
@@ -56,6 +60,220 @@
       padding: 16px;
       font-size: 1.1rem;
       border-radius: 30px;
-      cursor: pointer;
       color: white;
-      margin: 12px
+      margin: 12px 0;
+      font-weight: 600;
+      transition: transform 0.15s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+    }
+
+    /* Contador */
+    #contador {
+      font-size: 2.8rem;
+      font-weight: bold;
+      margin-top: 20px;
+      display: none;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Mensaje final */
+    .mensaje-final {
+      font-size: 1.7rem;
+      font-weight: bold;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: aparecer 1.2s ease forwards;
+    }
+
+    @keyframes aparecer {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Latido del botón Sí */
+    .latido {
+      animation: latido 0.8s ease-in-out;
+    }
+
+    @keyframes latido {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.15); }
+      50% { transform: scale(0.95); }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Confeti */
+    .confetti {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+      z-index: 999;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-40px) rotate(0deg); opacity:1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity:0; }
+    }
+
+    iframe {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Entrada -->
+  <div class="card" id="entrada">
+    <h1>💌 Tengo algo muy importante que preguntarte 💌</h1>
+    <button onclick="entrar()">Entrar 💖</button>
+    <div id="contador">10</div>
+  </div>
+
+  <!-- Propuesta -->
+  <div class="card" id="propuesta" style="display:none;">
+    <h1>💖 Hola mi amor 💖</h1>
+    <p>Desde que llegaste a mi vida, todo es mejor.</p>
+    <h2>¿Quieres ser mi San Valentín este 14 de febrero? 🌹</h2>
+
+    <button id="btnSi" onclick="si()">¡Sí! 😍</button>
+    <button id="noBtn" onclick="no()">No 😢</button>
+
+    <div id="respuesta"></div>
+  </div>
+
+  <!-- Música (fija, sin radio) -->
+  <iframe
+    id="musica"
+    src="https://www.youtube.com/embed/uTT9Bg_duiU?enablejsapi=1"
+    allow="autoplay">
+  </iframe>
+
+  <script>
+    let mensajesNo = [
+      "🥺 ¿Estás segura?",
+      "😢 Piénsalo otra vez",
+      "💔 Mi corazoncito no aguanta",
+      "😏 Sabemos que quieres decir que sí",
+      "💖 Ándale, di que síiiii"
+    ];
+
+    let contadorNo = 0;
+    const noBtn = document.getElementById("noBtn");
+    const btnSi = document.getElementById("btnSi");
+    let player;
+
+    // YouTube API
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('musica', {
+        events: {
+          'onReady': e => e.target.setVolume(0)
+        }
+      });
+    }
+
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+
+    function entrar() {
+      document.getElementById("musica").src =
+        "https://www.youtube.com/embed/uTT9Bg_duiU?autoplay=1&rel=0&enablejsapi=1";
+
+      let vol = 0;
+      const fade = setInterval(() => {
+        if (player && vol <= 40) {
+          player.setVolume(vol);
+          vol += 5;
+        } else {
+          clearInterval(fade);
+        }
+      }, 400);
+
+      const contador = document.getElementById("contador");
+      contador.style.display = "block";
+
+      let tiempo = 10;
+      contador.textContent = tiempo;
+
+      const intervalo = setInterval(() => {
+        tiempo--;
+        contador.textContent = tiempo;
+
+        if (tiempo === 0) {
+          clearInterval(intervalo);
+          document.getElementById("entrada").style.display = "none";
+          document.getElementById("propuesta").style.display = "block";
+        }
+      }, 1000);
+    }
+
+    function no() {
+      if (contadorNo < mensajesNo.length) {
+        document.getElementById("respuesta").innerHTML = mensajesNo[contadorNo];
+        noBtn.style.transform = `scale(${1 - contadorNo * 0.12})`;
+        contadorNo++;
+
+        if (contadorNo === mensajesNo.length) {
+          noBtn.style.display = "none";
+        }
+      }
+    }
+
+    function si() {
+      // Vibración compatible
+      if (navigator.vibrate) {
+        navigator.vibrate([60, 40, 60]);
+      }
+
+      // Latido + deshabilitar
+      btnSi.classList.add("latido");
+      btnSi.disabled = true;
+
+      // Ocultar botón No
+      noBtn.style.display = "none";
+
+      document.getElementById("respuesta").innerHTML = `
+        <div class="mensaje-final">
+          💘 Sabía que dirías que sí 💘<br><br>
+          Te amo muchísimo 😘<br><br>
+          📸 Mándame esta captura para siempre 💕
+        </div>
+      `;
+
+      lanzarConfeti(70);
+    }
+
+    function lanzarConfeti(cantidad) {
+      for (let i = 0; i < cantidad; i++) {
+        const c = document.createElement("div");
+        c.classList.add("confetti");
+        c.style.left = Math.random() * window.innerWidth + "px";
+        c.style.backgroundColor =
+          `hsl(${Math.random() * 360}, 100%, 50%)`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3000);
+      }
+    }
+  </script>
+
+</body>
+</html>
